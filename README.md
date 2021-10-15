@@ -5,3 +5,4 @@ Extrahiert von der Viennale Seite die wichtigsten Informationen für alle verlin
 
 - Datei scrapurls mit links der zu extrahierenden Seiten befüllen
 - scrap.py ausführen
+
