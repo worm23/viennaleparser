@@ -11,16 +11,20 @@ def scrap(url):
     page= requests.get(url)
     results = BeautifulSoup(page.content, 'html.parser')
 
+    # get basic infos
     title = results.find("h1", class_="c-title--xl").text
     translated = results.find("h5", class_="c-article__translated")
     if translated:
         translated = translated.text
     else:
         translated = ""
+    # most infos are only interesting as a concatinated text
     infoElement = results.find("div", class_="c-article__sub")
     info = infoElement.getText("|", strip=True)
-    time = int(infoElement.find_all("div")[2].text.replace("min",""))
+    # except the length of the movie, needed for end time of screenings
+    length = int(infoElement.find_all("div")[2].text.replace("min",""))
 
+    # get the actors
     creditsElement = results.find("ul", class_="c-credit__items")
     credits = ""
     if creditsElement:
@@ -30,6 +34,7 @@ def scrap(url):
         if len(elements)>0:
             credits = credits.rpartition(', ')[0]
 
+    # easiest consistent way to support different video plattforms is to extract it from the url parameter of the video iframe
     videoElement = results.find("div", class_="c-video")
     videoUrl = ""
     if videoElement:
@@ -38,6 +43,7 @@ def scrap(url):
         if videoUrl:
             videoUrl = unquote(videoUrl.rpartition('url=')[2]).decode('utf8').partition('&max_width=0&max_height=0')[0]
     
+    # print scraped infos as a csv
     print(title),
     print(';'),
     print(translated),
@@ -51,11 +57,15 @@ def scrap(url):
     print(url),
     print(';'),
 
+    # get screening times and locations
     screeningsElement = results.find("div", class_="c-screening").find_all("div", class_="c-screening__item")
-    delta = datetime.timedelta(minutes=time)
+    # convert film length to timedelta to calculate end time
+    delta = datetime.timedelta(minutes=length)
     for screeningElement in screeningsElement:
+        # extract date and time of the screening
         day = int(screeningElement.find("div", class_="c-date").find("span", class_="c-date__day").text)
         month = screeningElement.find("div", class_="c-date").find("span", class_="c-date__month").text
+        # ugly, but come on, viennale is only in october or november, didn't want to fuck around with date parsing
         if month=='Oct':
             month=10
         else:
@@ -64,13 +74,15 @@ def scrap(url):
         date = "{}.{}.{} {}".format(day, month, year, timeString)
         date = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M')
 
-        location = screeningElement.find("div", class_="c-screening__info").find("div", class_="c-screening__location").text
-        version = screeningElement.find("div", class_="c-screening__info").find("div", class_="c-screening__fassung").text
-
+        # calculate End time and format strings
         startdate = date.strftime("%d.%m.%Y %H:%M")
         dateEnd = date + delta
         enddate = dateEnd.strftime("%d.%m.%Y %H:%M")
 
+        # get basic screening data
+        location = screeningElement.find("div", class_="c-screening__info").find("div", class_="c-screening__location").text
+        version = screeningElement.find("div", class_="c-screening__info").find("div", class_="c-screening__fassung").text
+        # print as csv
         print(startdate),
         print(';'),
         print(enddate),
@@ -79,21 +91,17 @@ def scrap(url):
         print(';'),
         print(version),
         print('; ;'),
-
+    # Finally newline to end CSV row
     print
 
 
 
-# Using readline()
+# read file with urls to viennale movies
 urlFile = open('scrapurls', 'r')
 while True:
-    # Get next line from file
     line = urlFile.readline()
-                      
-    # if line is empty
-    # end of file is reached
     if not line:
         break
+    # do your stuff
     scrap(line.strip())
-                                               
 urlFile.close()
