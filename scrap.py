@@ -1,8 +1,8 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 import requests
 import datetime
 from bs4 import BeautifulSoup
-from urllib import unquote
+from urllib.parse import unquote
 
 
 def scrap(url):
@@ -41,21 +41,21 @@ def scrap(url):
         videoElement = videoElement.find("iframe")
         videoUrl = videoElement['src']
         if videoUrl:
-            videoUrl = unquote(videoUrl.rpartition('url=')[2]).decode('utf8').partition('&max_width=0&max_height=0')[0]
+            videoUrl = unquote(videoUrl.rpartition('url=')[2]).partition('&max_width=0&max_height=0')[0]
     
     # print scraped infos as a csv
-    print(title),
-    print(';'),
-    print(translated),
-    print(';'),
-    print(info),
-    print(';'),
-    print(credits),
-    print(';'),
-    print(videoUrl),
-    print(';'),
-    print(url),
-    print(';'),
+    print(title, end = '')
+    print(';', end = '')
+    print(translated, end = '')
+    print(';', end = '')
+    print(info, end = '')
+    print(';', end = '')
+    print(credits, end = '')
+    print(';', end = '')
+    print(videoUrl, end = '')
+    print(';', end = '')
+    print(url, end = '')
+    print(';', end = '')
 
     # get screening times and locations
     screeningsElement = results.find("div", class_="c-screening").find_all("div", class_="c-screening__item")
@@ -83,16 +83,16 @@ def scrap(url):
         location = screeningElement.find("div", class_="c-screening__info").find("div", class_="c-screening__location").text
         version = screeningElement.find("div", class_="c-screening__info").find("div", class_="c-screening__fassung").text
         # print as csv
-        print(startdate),
-        print(';'),
-        print(enddate),
-        print(';'),
-        print(location),
-        print(';'),
-        print(version),
-        print('; ;'),
+        print(startdate, end = '')
+        print(';', end = '')
+        print(enddate, end = '')
+        print(';', end = '')
+        print(location, end = '')
+        print(';', end = '')
+        print(version, end = '')
+        print('; ;', end = '')
     # Finally newline to end CSV row
-    print
+    print('')
 
 
 
