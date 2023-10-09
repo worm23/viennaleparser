@@ -55,6 +55,7 @@ def scrap(url):
     print(videoUrl, end = '')
     print(';', end = '')
     print(url, end = '')
+    print(';', end = '') # empty column to note interest later
     print(';', end = '')
 
     # get screening times and locations
@@ -90,7 +91,7 @@ def scrap(url):
         print(location, end = '')
         print(';', end = '')
         print(version, end = '')
-        print('; ;', end = '')
+        print('; ;', end = '') # empty column to note interest later
     # Finally newline to end CSV row
     print('')
 
